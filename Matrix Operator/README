@@ -1,0 +1,44 @@
+Copyright Manea Dorin-Mihai 313CAb 2021-2022
+Homework #2 - Octave Simulator (Dynamic Memory Allocation)
+
+L) - Allocating memory for a matrix
+	I found it easiest so utilise an array of matrices (mat_lst) defined
+with the help of structures. Specifically, the structure matrix_t, that 
+memorises the matrix itself and its dimensions. Therefore, we did not
+complicate the program structure with a tridimensional array or additional
+arrays for the dimensions.
+
+	I used two functions for this task, one for (re)allocating memory
+for the matrices array and one for allocating memory for the matrix at the current
+index (aka size - 1). They will both serve purpose in other tasks, as well.
+
+	At the end, after incrementing the size variable, I check whether size
+and size1 (the absolute size) are equal. This is because I reallocate memory
+for the matrices array only when the current size is half of the absolute size.
+We do not have to increment size1 if size < size1.
+
+D) - Dimensions of a given matrix
+	The code is sufficient.
+	
+P) - Displaying a given matrix
+	The code is sufficient.
+	
+C) - Resizing a matrix
+	We make use of an auxiliary matrix given the desired dimensions.
+According to the given examples, the formula for the element at indices
+i and j is aux[i][j] = mat_lst[index].a[lin[i]][col[j]].
+	It is necessary that the memory for the matrix wished to be resized
+is freed.
+
+M) - Multiply two matrices
+	The standard algorithm. O(m * n1 * n) time complexity. Multiplication
+cannot be performed if n != m1;
+m, n - mat_lst[index] dimensions; m1, n1 - mat_lst[index1] dimensions
+
+O) - Sorting the array of matrices
+	I used a rather simple, yet working algorithm - selection sort.
+
+
+
+
+
