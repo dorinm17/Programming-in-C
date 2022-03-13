@@ -1,0 +1,101 @@
+Copyright Manea Dorin-Mihai 313CAb 2021-2022
+Homework #3 - Image Editor (Files, String Parsing and Structures)
+
+	Based on the command entered by the user, the image editor can perform the
+following operations on the PGM and PPM formats:
+
+1) LOAD — loads the parsed file into the program
+
+	In order to have easy access to all the image data, I have implemented a
+structure that retains the following: the magic-word, the width, the height,
+the maximum pixel intensity and the pixels themselves. Based on whether the
+image is grayscale or RGB they will be stored differently (2D vs 3D array).
+The pixel arrays are allocated dynamically, since the image could have any
+possible dimensions. Pixels are stored as floating point values (needed for the
+APPLY command — image kernels contain floating point numbers).
+	Moreover, the image structure will retain the current selection zone
+(implicitily the whole image) and whether there is any loaded image at the
+current time or not.
+	I decided to parse the image as a text file even if it is actually binary,
+since only the pixels in a binary file are stored differently (unsigned char),
+consequently read differently into the program.
+	Nonetheless, the image file could contain comments which have to be
+ignored, for which I have made a separate function.
+	The pixel array allocation functions (grayscale and RGB respectively) will
+be used in some of the next presented operations.
+
+2) SELECT — selects the current working zone
+
+	It accepts four coordinates in this order: x1, y1, x2, y2. The working
+space becomes the rectangle with the top left corner at (x1, y1) and the bottom
+right corner at (x2 - 1, y2 - 1). If x2 > x1, the values will be swapped (same
+applies for y1 and y2). The coordinates must lie within the given domain.
+	Besides, it could receive the "ALL" argument instead of the coordinates,
+which means that the working zone will once again be the whole image.
+
+3) ROTATE — rotates the current working zone
+
+	The permitted rotation angles are 0, +/-90, +/-180, +/270, +/-360.
+A positive value indicates a rightward rotation and a negative value indicates
+a leftward rotation. For 0 and +/-360 respectively the image remains identical.
+	Since 90 deg = -270 deg, 180 deg = -180 deg and 270 deg = -90 deg, only
+three functions are actually required: 90 deg rightward rotation, 90 deg
+leftward rotation and 180 deg rotation. They could have been further reduced to
+one sole function — the 90 deg rightward rotation one — as a 180 deg rotation
+is equivalent to two 90 deg rightward rotations and a 270 deg rightward
+rotation is equivalent to three 90 deg rightward rotations. However, it would
+have increased the time and space complexity.
+	The working space must be either a square or the whole image. If an image
+is rotated by 90 deg, its dimensions will implicitily change. Ergo, the current
+pixel array memory has to be freed and reallocated.
+
+4) CROP — crops the current working zone
+
+	After this operation takes effect, the former working space will replace
+the bigger image, thus it becomes the new "whole image". The dimensions will
+implicitly change. Ergo, the current pixel array memory has to be freed and
+reallocated.
+
+5) APPLY — applies an effect over the the current working zone
+
+	Available only for RGB images. It applies one of the following image
+kernels over the working space: Edge detection ("EDGE"), Sharpen ("SHARPEN"),
+Box blur ("BLUR"), Gaussian blur 3 × 3 ("GAUSSIAN_BLUR").
+
+	The process of adding each element of the image to its local neighbors,
+weighted by the kernel, (aka Convolution) differs from the standard matrix
+multiplication:
+
+	a b c   1 2 3
+	d e f * 4 5 6 [2, 2] = i * 1 + h * 2 + g * 3 + f * 4 + e * 5 + d * 6 +
+	g h i	7 8 9		   c * 7 + b * 8 + a * 9,
+
+where the first matrix is the kernel and the second one is an image piece.
+The element at coordinates [2, 2] (that is, the central element) of the
+resulting image piece is the one calculated at the time.
+
+	Each of the colour channels must go through said calculations. Some
+computations may give results less than 0 or greater than the maximum pixel
+intensity. For that I have implemented a clamping function — if x < min, x
+becomes min; if x > max, x becomes max.
+	If a pixel does not have enough neighbours, resulting from lying on one of
+the margins, it will not be modified.
+
+6) SAVE — parses the current data in the program as an image file
+
+	If the users sends the optional argument "ascii", then the image will be
+saved in plain form regardless of its magic-word. Likewise, not mentioning it
+will result in the image being saved in binary form regardless of its magic-
+word.
+	In similar fashion to the loading operation, I decided to parse the image
+as a text file even if it is actually binary, since only the pixels in a binary
+file are actually stored differently (unsigned char), consequently wrote
+differently into the file.
+	After the operation takes effect, the current image remains the previously
+loaded one, not the newly saved one.
+
+7) EXIT — frees the pixel array memory and terminates the program
+
+	Any other command is invalid.
+	Any result printed to stdout has been implemented using macros (the C
+Preprocessor).
